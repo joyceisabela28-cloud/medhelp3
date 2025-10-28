@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Médica - Gerenciamento</title>
+    
+    <link rel="stylesheet" href="style.css"> 
+    
+</head>
+<body>
+
+    <header class="header">
+        <nav class="navbar">
+            <ul class="nav-links">
+                <li><a href="#avaliacao" id="link-avaliacao">Avaliação</a></li>
+                <li><a href="#receita" id="link-receita">Receita</a></li>
+                <li><a href="#agenda" id="link-agenda">Agenda</a></li>
+                <li><a href="#fale-conosco" id="link-fale-conosco">Fale Conosco</a></li>
+                <li><a href="#sobre" id="link-sobre">Sobre</a></li>
+                <li><a href="#nossa-historia" id="link-nossa-historia">Nossa História</a></li> 
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="banner">
+        <h1 class="banner-logo">Clínica Gerência</h1>
+    </div>
+
+    <main class="content" id="main-content">
+        <h2 class="page-title">Bem-vindo(a)</h2>
+        <p>Use o menu lateral para navegar entre as seções de gerenciamento da clínica.</p>
+    </main>
+
+    <footer class="footer">
+        <p>
+            Clinica MedHelp - 
+            <a 
+                href="https://www.google.com/maps/search/?api=1&query=Rua+Cisplatina,+298+-+Ipiranga%2FSP" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title="Ver a localização no Google Maps"
+            >
+                Rua Cisplatina, 298 - Ipiranga/SP
+            </a>
+        </p>
+    </footer>
+    
+    <script>
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const mainContent = document.getElementById('main-content');
+        const defaultTitle = 'Bem-vindo(a)';
+        
+        // =========================================
+        // NOVOS DADOS: Fichas dos Pacientes
+        // =========================================
+        const patientRecords = {
+            '00123': {
+                id: '00123',
+                name: 'João Santos',
+                record: `
+Idade: 30 anos
+Peso: 75 kg
+Altura: 1,70 m
+Temperatura: Ideal
+
+Relato Principal: Dor no peito e episódios de queda de pressão.
+
+Plano de Ação:
+1. Encaminhamento para o especialista em Cardiologia.
+2. Pedido de exame de sangue (Colesterol LDL e HDL).
+`
+            },
+            '12365': {
+                id: '12365',
+                name: 'Ana Silva',
+                record: `
+Idade: 5 anos
+Peso: 22 kg
+Altura: 1,25 m
+Temperatura: 38ºC
+
+Relato Principal: Febre, dor de garganta e vômito.
+
+Plano de Ação:
+1. Administração de antitérmico, anti-inflamatório.
+2. Administração de Dramin na veia.
+3. Observação do paciente por 1 hora.
+`
+            },
+            '35791': {
+                id: '35791',
+                name: 'Mariana Costa',
+                record: `
+Idade: 45 anos
+Peso: 68 kg
+Altura: 1,65 m
+Temperatura: Ideal
+
+Relato Principal: Dor lombar crônica há 6 meses, piora ao levantar.
+
+Plano de Ação:
+1. Prescrição de relaxante muscular e analgésico.
+2. Encaminhamento para fisioterapia (10 sessões).
+3. Solicitação de ressonância magnética da coluna lombar.
+`
+            },
+            '44200': {
+                id: '44200',
+                name: 'Pedro Almeida',
+                record: `
+Idade: 72 anos
+Peso: 85 kg
+Altura: 1,78 m
+Temperatura: Ideal
+
+Relato Principal: Retorno de acompanhamento para Hipertensão e Diabetes tipo 2.
+
+Plano de Ação:
+1. Ajuste da dosagem da medicação anti-hipertensiva.
+2. Revisão da dieta (redução de sódio e carboidratos).
+3. Próximo check-up agendado em 3 meses.
+`
+            },
+            '51987': {
+                id: '51987',
+                name: 'Lúcia Ferreira',
+                record: `
+Idade: 28 anos
+Peso: 60 kg
+Altura: 1,60 m
+Temperatura: Ideal
+
+Relato Principal: Queixas de insônia e ansiedade relacionada ao trabalho.
+
+Plano de Ação:
+1. Sugestão de técnicas de higiene do sono.
+2. Encaminhamento para avaliação psiquiátrica (se sintomas persistirem).
+3. Orientação para prática regular de exercícios.
+`
+            }
+        };
+
+        // Função para carregar a ficha do paciente
+        function loadPatientRecord(patientId) {
+            const textarea = document.getElementById('anamnese');
+            const patientIdInput = document.getElementById('patient-search-id');
+            const patientNameDisplay = document.getElementById('current-patient-name');
+            
+            // Remove espaços e garante que a busca seja feita pela chave exata
+            const cleanId = patientId.trim(); 
+            const record = patientRecords[cleanId];
+            
+            if (record) {
+                textarea.value = `PACIENTE ID: ${record.id} | NOME: ${record.name}\n==========================================\n${record.record.trim()}`;
+                patientIdInput.value = record.id;
+                patientNameDisplay.textContent = `Paciente Selecionado: ${record.name}`;
+            } else {
+                textarea.value = `ATENÇÃO: Nenhum registro encontrado para o ID: ${cleanId}. Por favor, verifique o número.`;
+                patientNameDisplay.textContent = 'Nenhum paciente selecionado.';
+            }
+        }
+        
+        // =========================================
+        // Detalhes das Especialidades
+        // =========================================
+        const specialityDetails = {
+            'ginecologia': {
+                nome: 'Ginecologia',
+                publico: 'Área exclusiva para mulheres.',
+                preparo: 'Exige preparo específico antes da consulta.',
+                exames: 'Realiza exames no local.',
+                cor: '#e38499'
+            },
+            'cardiologia': {
+                nome: 'Cardiologia',
+                publico: 'Área para todos os gêneros e idades.',
+                preparo: 'Não exige preparo prévio.',
+                exames: 'Solicita exames individuais em laboratórios.',
+                cor: '#dc3545'
+            },
+            'geral': {
+                nome: 'Clínica Geral',
+                publico: 'Área para todos os gêneros e idades.',
+                preparo: 'Não exige preparo prévio.',
+                exames: 'Foca em pedido de exames e orientação inicial.',
+                cor: '#8ACDA8'
+            },
+            'pediatria': {
+                nome: 'Pediatria',
+                publico: 'Área para Crianças de 0 meses até 12 anos.',
+                preparo: 'Não precisa de preparo específico.',
+                exames: 'Realiza exames e triagem no local.',
+                cor: '#3498db'
+            }
+        };
+
+
+        // =========================================
+        // Conteúdo das Páginas 
+        // =========================================
+        const pageContent = {
+            
+            // 1. AVALIAÇÃO (COM BUSCA DE PACIENTE)
+            'avaliacao': {
+                title: 'Avaliação do Paciente',
+                html: `
+                    <div class="content-grid">
+                        <div class="info-card" style="grid-column: 1 / -1;">
+                            <h3>Busca e Registro de Anamnese</h3>
+                            
+                            <label for="patient-search-id">Buscar ID do Paciente:</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" id="patient-search-id" value="00123" placeholder="Ex: 00123" style="max-width: 200px; margin-bottom: 0;">
+                                <button type="button" id="search-patient-btn" style="background-color: #3498db; width: 100px;">Buscar</button>
+                            </div>
+
+                            <p id="current-patient-name" style="font-weight: bold; color: var(--cor-texto-menu);">Paciente Selecionado: João Santos</p>
+                            
+                            <label for="anamnese" style="margin-top: 15px; display: block;">Notas da Sessão:</label>
+                            <textarea id="anamnese" rows="18" placeholder="O registro será carregado aqui após a busca do ID." style="width: 98%; max-width: none;"></textarea>
+                            <button style="background-color: #f7a83d;">Salvar Avaliação</button>
+                        </div>
+                        <div class="info-card">
+                            <h3>Critérios de Segurança (LGPD)</h3>
+                            <ul>
+                                <li>Criptografia de ponta a ponta.</li>
+                                <li>Acesso restrito ao profissional e paciente.</li>
+                                <li>Armazenamento em servidor seguro.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            
+            // 2. RECEITA (ATUALIZADA para Mariana Costa)
+            'receita': {
+                title: 'Emissão de Receitas',
+                html: `
+                    <div class="content-grid">
+                        <div class="info-card">
+                            <h3>Receita Simples</h3>
+                            <form>
+                                <label for="rec_paciente">Paciente:</label>
+                                <input type="text" id="rec_paciente" value="Mariana Costa (ID: 35791)"><br>
+                                <label for="medicamento">Medicamento:</label>
+                                <input type="text" id="medicamento" value="Relaxante Muscular (Dorflex)"><br>
+                                <label for="dosagem">Posologia:</label>
+                                <input type="text" id="dosagem" value="10 comprimidos, 1 por dia (a cada 24h) por 10 dias."><br>
+                                <button style="background-color: var(--cor-principal);">Gerar Pré-visualização</button>
+                            </form>
+                        </div>
+                        <div class="info-card">
+                            <h3>Opções de Impressão</h3>
+                            <ul>
+                                <li>**Tipo:** Receita Simples, Controle Especial.</li>
+                                <li>**Formato:** A4 ou A5.</li>
+                                <li>**Assinatura:** Digital (Certificado A1).</li>
+                            </ul>
+                            <button style="background-color: #dc3545;">Imprimir Receita (PDF)</button>
+                        </div>
+                    </div>
+                `
+            },
+            
+            // 3. AGENDA
+            'agenda': {
+                title: 'Agenda de Consultas',
+                html: `
+                    <p>Utilize o formulário abaixo para marcar ou buscar horários.</p>
+                    <div class="content-grid">
+                        <div class="info-card" style="grid-column: 1 / -1;"> 
+                            <h3>Agendamento Rápido</h3>
+                            <form id="appointment-form">
+                                <label for="especialidade">Especialidade:</label>
+                                <select id="especialidade" name="especialidade" style="max-width: 300px;">
+                                    <option value="">Selecione a Especialidade</option>
+                                    <option value="pediatria">Pediatria</option>
+                                    <option value="ginecologia">Ginecologia</option>
+                                    <option value="cardiologia">Cardiologia</option>
+                                    <option value="psiquiatria">Psiquiatria</option>
+                                    <option value="geral">Clínica Geral</option>
+                                </select><br>
+
+                                <label style="margin-top: 15px; display: block;">Escolha o Médico (Clique na foto para dar zoom):</label>
+                                <div class="doctor-selection">
+                                    <div class="doctor-card" data-medico="joao_santos" data-especialidade="cardiologia">
+                                        <img src="joao.jpg" alt="Dr. João Santos">
+                                        <p>Dr. João Santos (Cardiologia)</p>
+                                    </div>
+                                    <div class="doctor-card" data-medico="ana_silva" data-especialidade="pediatria">
+                                        <img src="ana.jpg" alt="Dra. Ana Silva">
+                                        <p>Dra. Ana Silva (Pediatria)</p>
+                                    </div>
+                                    <div class="doctor-card" data-medico="maria_oliveira" data-especialidade="ginecologia">
+                                        <img src="maria.jpg" alt="Dra. Maria Oliveira">
+                                        <p>Dra. Maria Oliveira (Ginecologia)</p>
+                                    </div>
+                                </div>
+
+                                <label for="data">Escolha a Data:</label>
+                                <input type="date" id="data" name="data" style="max-width: 300px;"><br>
+
+                                <button type="submit">Buscar Horários Disponíveis</button>
+                            </form>
+                        </div>
+                        <div id="speciality-details-container" style="grid-column: 1 / -1;">
+                            </div>
+                    </div>
+                `
+            },
+
+            // 4. FALE CONOSCO
+            'fale-conosco': {
+                title: 'Fale Conosco',
+                html: `
+                    <div class="content-grid">
+                        <div class="info-card">
+                            <h3>Contato Rápido</h3>
+                            <ul>
+                                <li>**Telefone:** (11) 96365-4701</li>
+                                <li>**Email:** MedHelpsuporte@gmail.com</li>
+                                <li>**Horário:** Seg-Sex, 8h às 18h</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h3>Formulário de Suporte</h3>
+                            <form>
+                                <label for="assunto">Assunto:</label><br>
+                                <select id="assunto" style="max-width: none;"><option>Dúvida Geral</option><option>Suporte Técnico</option></select><br>
+                                <label for="mensagem">Mensagem:</label><br>
+                                <textarea id="mensagem" rows="3" style="width: 95%; max-width: none;"></textarea><br>
+                                <button type="submit">Enviar Suporte</button>
+                            </form>
+                        </div>
+                    </div>
+                `
+            },
+            
+            // 5. SOBRE
+            'sobre': {
+                title: 'Sobre a Clínica',
+                html: `
+                    <div class="content-grid">
+                        <div class="info-card">
+                            <h3>Missão</h3>
+                            <p>Oferecer um serviço de excelência a pacientes de todas as idades, promovendo o acesso facilitado e garantindo um atendimento personalizado, pautado na confidencialidade entre paciente e médico.</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Corpo Clínico</h3>
+                            <ul>
+                                <li>Mais de 50 especialistas credenciados.</li>
+                                <li>Equipe multidisciplinar disponível.</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h3>Versão do Sistema</h3>
+                            <p>Gerenciamento MedHelp v2.1. Última Atualização: Outubro/2025.</p>
+                        </div>
+                    </div>
+                `
+            },
+            
+            // 6. NOSSA HISTÓRIA
+            'nossa-historia': {
+                title: 'Nossa História',
+                html: `
+                    <div class="content-grid">
+                        <div class="info-card" style="grid-column: 1 / -1;">
+                            <h3>A Inspiração</h3>
+                            <p>Este site foi idealizado por uma adolescente do ensino médio apaixonada por medicina que, ao conviver com pessoas idosas, percebeu as dificuldades que elas enfrentam para se adaptar à tecnologia.</p>
+                            <p>Dessa observação surgiu a proposta de uma solução acessível, com suporte dedicado e acesso direto pela web, sem a necessidade de utilizar apenas aplicativos.</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Nosso Compromisso</h3>
+                            <p>Simplificar a jornada de saúde digital para todos.</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // --- Funções de Lógica ---
+        function loadPageContent(pageId) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            const activeLink = document.getElementById(`link-${pageId}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            const content = pageContent[pageId];
+            if (content) {
+                mainContent.innerHTML = `<h2 class="page-title">${content.title}</h2>${content.html}`;
+                
+                // Inicializa a funcionalidade de busca se for a página de Avaliação
+                if (pageId === 'avaliacao') {
+                    const searchBtn = document.getElementById('search-patient-btn');
+                    const searchInput = document.getElementById('patient-search-id');
+                    
+                    // 1. Carrega o registro padrão (00123) na abertura da página
+                    loadPatientRecord(searchInput.value);
+
+                    // 2. Adiciona o Listener de Busca
+                    searchBtn.addEventListener('click', () => {
+                        const idToSearch = searchInput.value.trim();
+                        loadPatientRecord(idToSearch);
+                    });
+                    
+                    // 3. Adiciona Listener para Enter Key
+                    searchInput.addEventListener('keyup', (event) => {
+                        if (event.key === 'Enter') {
+                            const idToSearch = searchInput.value.trim();
+                            loadPatientRecord(idToSearch);
+                        }
+                    });
+                }
+            } else {
+                 mainContent.innerHTML = `<h2 class="page-title">Página Não Encontrada</h2><p>O conteúdo para ${pageId} não foi definido.</p>`;
+            }
+
+            if (pageId === 'agenda') {
+                setupDoctorSelection();
+            }
+        }
+        
+        function displaySpecialityDetails(specialtyId) {
+            const container = document.getElementById('speciality-details-container');
+            const details = specialityDetails[specialtyId];
+            
+            if (!details || specialtyId === '') {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="info-card speciality-info" style="border-top-color: ${details.cor};">
+                    <h3>Detalhes da Especialidade: ${details.nome}</h3>
+                    <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <p><strong>Público:</strong> ${details.publico}</p>
+                        <p><strong>Preparo:</strong> ${details.preparo}</p>
+                        <p><strong>Exames:</strong> ${details.exames}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function setupDoctorSelection() {
+            const doctorCards = document.querySelectorAll('.doctor-card');
+            const specialitySelect = document.getElementById('especialidade');
+            
+            doctorCards.forEach(card => {
+                const img = card.querySelector('img'); 
+
+                // 1. Lógica de seleção do cartão (Atualiza os Detalhes)
+                card.addEventListener('click', () => {
+                    doctorCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    const selectedSpecialty = card.getAttribute('data-especialidade');
+                    specialitySelect.value = selectedSpecialty;
+                    
+                    displaySpecialityDetails(selectedSpecialty); 
+                });
+
+                // 2. Lógica de zoom ao clicar na IMAGEM
+                img.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    
+                    if (img.classList.contains('zoomed')) {
+                        img.classList.remove('zoomed');
+                        document.querySelector('.overlay-zoom')?.remove(); 
+                    } else {
+                        img.classList.add('zoomed');
+
+                        const overlay = document.createElement('div');
+                        overlay.classList.add('overlay-zoom');
+                        document.body.appendChild(overlay);
+
+                        overlay.addEventListener('click', () => {
+                            img.classList.remove('zoomed');
+                            overlay.remove();
+                        });
+                    }
+                });
+            });
+
+            // 3. Lógica de filtro por especialidade (Atualiza os Detalhes)
+            specialitySelect.addEventListener('change', () => {
+                const selectedSpecialty = specialitySelect.value;
+                
+                doctorCards.forEach(card => {
+                    const cardSpecialty = card.getAttribute('data-especialidade');
+                    
+                    if (selectedSpecialty === '' || cardSpecialty === selectedSpecialty) {
+                         card.style.opacity = '1';
+                         card.style.display = 'block'; 
+                    } else {
+                        card.classList.remove('selected'); 
+                        card.style.opacity = '0.4';
+                    }
+                });
+                
+                displaySpecialityDetails(selectedSpecialty); 
+            });
+        }
+        
+        // --- Listeners de Navegação ---
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault(); 
+                const pageId = link.getAttribute('href').substring(1); 
+                loadPageContent(pageId);
+                history.pushState(null, '', `#${pageId}`); 
+            });
+        });
+
+        window.addEventListener('load', () => {
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash && pageContent[initialHash]) {
+                loadPageContent(initialHash);
+            } else {
+                 // A página inicial padrão será 'avaliacao'
+                 const initialPageId = 'avaliacao'; 
+                 loadPageContent(initialPageId);
+            }
+        });
+        
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash && pageContent[hash]) {
+                loadPageContent(hash);
+            } else {
+                 mainContent.innerHTML = `<h2 class="page-title">${defaultTitle}</h2><p>Use o menu lateral para navegar entre as seções de gerenciamento da clínica.</p>`;
+                navLinks.forEach(link => link.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>
